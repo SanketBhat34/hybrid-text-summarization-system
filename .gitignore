@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.env/
+
+# Environment variables (contains secrets)
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Local configuration
+*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Model cache (can be large)
+.cache/
+
+# Temporary files
+*.tmp
+*.temp

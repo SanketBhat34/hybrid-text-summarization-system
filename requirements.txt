@@ -1,0 +1,67 @@
+# Text Summarizer - Dependencies
+# Install with: pip install -r requirements.txt
+
+# =============================================
+# ALGORITHMS SUPPORTED:
+# 1. Text Preprocessing (Tokenization, Stop-word Removal, Lemmatization)
+# 2. TF-IDF (Term Frequency-Inverse Document Frequency)
+# 3. Cosine Similarity (Sentence comparison)
+# 4. TextRank (Graph-based ranking with PageRank)
+# 5. Position-based Weighting
+# 6. Sentence Length Filtering
+# 7. Keyword Boosting
+# 8. Redundancy Removal
+# 9. K-Means Clustering (Topic coverage)
+# 10. Sentence-BERT (Semantic similarity - AI Layer)
+# 11. ROUGE Evaluation Metrics (Quality measurement)
+# 12. Multi-Language Support (Auto-detection)
+# 13. Voice Input/Output (Speech-to-Text, Text-to-Speech)
+# =============================================
+
+# Web Framework
+streamlit>=1.28.0
+
+# NLP Libraries (Tokenization, Lemmatization, Stop-words, TextRank)
+nltk>=3.8.1
+networkx>=3.1
+
+# TF-IDF, Cosine Similarity, Machine Learning
+scikit-learn>=1.3.0
+
+# Transformer Models (Abstractive Summarization)
+transformers>=4.35.0
+torch>=2.0.0
+
+# Sentence-BERT (Semantic Sentence Embeddings)
+sentence-transformers>=2.2.0
+
+# File Processing
+PyPDF2>=3.0.0
+python-docx>=1.0.0
+
+# Data Processing
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Evaluation Metrics (ROUGE scores for summary quality)
+rouge-score>=0.1.2
+
+# PDF Generation
+fpdf2>=2.7.0
+
+# Multi-Language Support
+langdetect>=1.0.9
+
+# Voice Input/Output
+gTTS>=2.5.0
+SpeechRecognition>=3.10.0
+pydub>=0.25.0
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Database
+pymongo>=4.6.0
+
+# Optional: For faster inference (if you have NVIDIA GPU)
+# accelerate>=0.24.0
