@@ -55,6 +55,9 @@ class AuthManager:
         self.storage_path = Path(storage_path)
         self.storage_path.parent.mkdir(parents=True, exist_ok=True)
         self._users: Dict[str, User] = {}
+
+        # Always load JSON users so they can be used as fallback or migrated later.
+        self._load_users()
         
         # Try MongoDB first
         self.use_mongodb = use_mongodb and MONGODB_AVAILABLE
@@ -67,16 +70,13 @@ class AuthManager:
                 if self.db.is_connected:
                     self.user_repo = get_user_repository()
                     print("✅ AuthManager using MongoDB")
+                    self._migrate_json_users_to_mongodb()
                 else:
                     self.use_mongodb = False
                     print("⚠️ MongoDB not connected, using JSON fallback")
             except Exception as e:
                 self.use_mongodb = False
                 print(f"⚠️ MongoDB error: {e}, using JSON fallback")
-        
-        # Load from JSON as fallback
-        if not self.use_mongodb:
-            self._load_users()
     
     def _load_users(self):
         """Load users from JSON storage file."""
@@ -88,6 +88,41 @@ class AuthManager:
                         self._users[username] = User(**user_data)
             except (json.JSONDecodeError, TypeError):
                 self._users = {}
+
+    def _attempt_mongodb_reconnect(self):
+        """Try to reconnect to MongoDB and switch backend if available."""
+        if self.use_mongodb or not MONGODB_AVAILABLE:
+            return
+
+        try:
+            db = get_db()
+            if db.is_connected:
+                self.db = db
+                self.user_repo = get_user_repository()
+                self.use_mongodb = True
+                print("✅ AuthManager switched to MongoDB")
+                self._migrate_json_users_to_mongodb()
+        except Exception as e:
+            print(f"⚠️ MongoDB reconnect failed: {e}")
+
+    def _migrate_json_users_to_mongodb(self):
+        """Migrate JSON fallback users to MongoDB once connection is available."""
+        if not (self.use_mongodb and self.user_repo and self._users):
+            return
+
+        migrated = 0
+        for user in self._users.values():
+            success, _, _ = self.user_repo.create_user(
+                username=user.username,
+                email=user.email,
+                password_hash=user.password_hash,
+                full_name=user.full_name
+            )
+            if success:
+                migrated += 1
+
+        if migrated:
+            print(f"✅ Migrated {migrated} users from JSON to MongoDB")
     
     def _save_users(self):
         """Save users to JSON storage file."""
@@ -130,6 +165,9 @@ class AuthManager:
             return False, "Password must be at least 6 characters"
         
         password_hash = self._hash_password(password)
+
+        # Retry MongoDB connection in case it became available after app startup.
+        self._attempt_mongodb_reconnect()
         
         # Use MongoDB if available
         if self.use_mongodb and self.user_repo:
@@ -179,6 +217,9 @@ class AuthManager:
             return False, "Please enter username and password", None
         
         password_hash = self._hash_password(password)
+
+        # Retry MongoDB connection in case it became available after app startup.
+        self._attempt_mongodb_reconnect()
         
         # Use MongoDB if available
         if self.use_mongodb and self.user_repo:
@@ -226,6 +267,8 @@ class AuthManager:
     
     def get_user(self, username: str) -> Optional[User]:
         """Get user by username."""
+        self._attempt_mongodb_reconnect()
+
         # Use MongoDB if available
         if self.use_mongodb and self.user_repo:
             user_doc = self.user_repo.find_by_username(username)
@@ -245,6 +288,8 @@ class AuthManager:
     
     def user_exists(self, username: str) -> bool:
         """Check if username exists."""
+        self._attempt_mongodb_reconnect()
+
         # Use MongoDB if available
         if self.use_mongodb and self.user_repo:
             return self.user_repo.username_exists(username)

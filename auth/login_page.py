@@ -46,6 +46,39 @@ def get_vibrant_css():
             max-width: 450px;
             margin: 0 auto;
         }
+
+        /* Top brand box shown in the marked area */
+        .login-brand-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.28), rgba(118, 75, 162, 0.30), rgba(35, 166, 213, 0.28));
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            border-radius: 24px;
+            padding: 18px 28px;
+            box-shadow: 0 14px 34px rgba(80, 35, 128, 0.28), 0 0 24px rgba(255, 255, 255, 0.12) inset;
+            text-align: center;
+            max-width: 560px;
+            margin: 0 auto 18px auto;
+        }
+
+        .brand-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #f5eaff 45%, #d7f6ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            text-shadow: 0 2px 18px rgba(20, 8, 38, 0.25);
+        }
+
+        .brand-slogan {
+            color: #f3efff;
+            font-size: 1rem;
+            margin-top: 4px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
         
         @keyframes slideUp {
             from {
@@ -132,8 +165,11 @@ def get_vibrant_css():
         /* Tab styling */
         .stTabs [data-baseweb="tab-list"] {
             gap: 8px;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.20));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.45);
             padding: 5px;
         }
         
@@ -439,15 +475,16 @@ def render_login_page():
     _, col2, _ = st.columns([1, 2, 1])
     
     with col2:
-        # Login card container
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
-        
-        # Header
+        # Brand box (title + slogan in top highlighted area)
         st.markdown("""
+            <div class="login-brand-box">
+                <div class="brand-title">✨ Summarix AI</div>
+                <div class="brand-slogan">Transforming Information into Insight</div>
+            </div>
             <div class="login-header">
-                <div class="login-logo">📝</div>
-                <div class="login-title">Text Summarizer</div>
-                <div class="login-subtitle">AI-Powered Document Summarization</div>
+                <div class="login-logo">✨</div>
+                <div class="login-title">Welcome</div>
+                <div class="login-subtitle">Sign in to continue</div>
             </div>
         """, unsafe_allow_html=True)
         
@@ -713,8 +750,6 @@ def render_login_page():
                 </div>
             </div>
         """, unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
         
         # Footer
         st.markdown("""

@@ -68,7 +68,7 @@ An AI-powered text summarization tool that uses both **extractive** and **abstra
 ### Running the Application
 
 ```bash
-streamlit run app.py
+python -m streamlit run app.py
 ```
 
 The application will open in your default web browser at `http://localhost:8501`.

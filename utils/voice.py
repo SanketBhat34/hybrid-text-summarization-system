@@ -101,6 +101,7 @@ def text_to_speech(text: str, language: str = 'en') -> Dict:
     result = {
         'success': False,
         'audio_data': None,
+        'audio_format': None,
         'error': None
     }
     
@@ -136,17 +137,62 @@ def text_to_speech(text: str, language: str = 'en') -> Dict:
         
         result['success'] = True
         result['audio_data'] = audio_buffer.read()
+        result['audio_format'] = 'mp3'
         
     except ImportError:
         result['error'] = "gTTS library not installed. Run: pip install gTTS"
     except Exception as e:
-        error_msg = str(e).lower()
-        if "no text to send" in error_msg:
-            result['error'] = "Text is too short or contains only special characters"
-        elif "connection" in error_msg or "network" in error_msg:
-            result['error'] = "Network error. Please check your internet connection."
-        else:
-            result['error'] = f"Text-to-speech error: {str(e)}"
+        # Fallback to offline synthesis so the button still works without internet
+        try:
+            import pyttsx3
+
+            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+                temp_path = temp_file.name
+
+            try:
+                engine = pyttsx3.init()
+                engine.setProperty('rate', 170)
+                engine.setProperty('volume', 1.0)
+                engine.save_to_file(text, temp_path)
+                engine.runAndWait()
+
+                with open(temp_path, 'rb') as audio_file:
+                    result['success'] = True
+                    result['audio_data'] = audio_file.read()
+                    result['audio_format'] = 'wav'
+                    result['error'] = None
+            finally:
+                try:
+                    os.unlink(temp_path)
+                except Exception:
+                    pass
+
+            if result['success']:
+                return result
+
+            error_msg = str(e).lower()
+            if "no text to send" in error_msg:
+                result['error'] = "Text is too short or contains only special characters"
+            elif "connection" in error_msg or "network" in error_msg:
+                result['error'] = "Network error. Offline fallback also failed. Please check your system TTS setup."
+            else:
+                result['error'] = f"Text-to-speech error: {str(e)}"
+        except ImportError:
+            error_msg = str(e).lower()
+            if "no text to send" in error_msg:
+                result['error'] = "Text is too short or contains only special characters"
+            elif "connection" in error_msg or "network" in error_msg:
+                result['error'] = "Network error. Please check your internet connection."
+            else:
+                result['error'] = f"Text-to-speech error: {str(e)}"
+        except Exception as fallback_error:
+            error_msg = str(e).lower()
+            if "no text to send" in error_msg:
+                result['error'] = "Text is too short or contains only special characters"
+            elif "connection" in error_msg or "network" in error_msg:
+                result['error'] = f"Network error. Offline fallback failed: {str(fallback_error)}"
+            else:
+                result['error'] = f"Text-to-speech error: {str(e)}; Offline fallback failed: {str(fallback_error)}"
     
     return result
 

@@ -17,7 +17,7 @@ from auth import check_authentication, render_login_page, render_user_menu, get_
 
 # Page configuration
 st.set_page_config(
-    page_title="Text Summarizer",
+    page_title="Summarix AI",
     page_icon="📝",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -495,8 +495,8 @@ def main():
     # Header with welcome message
     col_title, col_user = st.columns([4, 1])
     with col_title:
-        st.markdown('<div class="main-header">📝 Text Summarizer</div>', unsafe_allow_html=True)
-        st.markdown('<div class="sub-header">Transform long texts into concise summaries using AI</div>', unsafe_allow_html=True)
+        st.markdown('<div class="main-header">✨ Summarix AI</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-header">Transforming Information into Insight</div>', unsafe_allow_html=True)
     with col_user:
         if user:
             st.markdown(f"""
@@ -829,8 +829,12 @@ def main():
     
     # Process summarization
     should_summarize = (summarize_text_btn and input_text) or (summarize_file_btn and input_text) or (summarize_voice_btn and input_text)
-    
+    summary_view_active = should_summarize or st.session_state.get('summary_view_active', False)
+
     if should_summarize:
+        st.session_state['summary_view_active'] = True
+    
+    if summary_view_active:
         if not input_text.strip():
             st.warning("⚠️ Please enter some text to summarize.")
         else:
@@ -1313,12 +1317,15 @@ EXTRACTED KEYWORDS: {', '.join(advanced_result.get('keywords', [])[:10])}
                         tts_result = generate_speech(download_text, effective_tts_language)
                     
                     if tts_result['success']:
-                        st.audio(tts_result['audio_data'], format='audio/mp3')
+                        audio_format = tts_result.get('audio_format', 'mp3')
+                        mime_type = 'audio/wav' if audio_format == 'wav' else 'audio/mp3'
+                        st.success("✅ Audio generated successfully")
+                        st.audio(tts_result['audio_data'], format=mime_type)
                         st.download_button(
-                            label="📥 Download Audio (MP3)",
+                            label=f"📥 Download Audio ({audio_format.upper()})",
                             data=tts_result['audio_data'],
-                            file_name="summary_audio.mp3",
-                            mime="audio/mp3",
+                            file_name=f"summary_audio.{audio_format}",
+                            mime=mime_type,
                             key="download_audio_btn"
                         )
                     else:

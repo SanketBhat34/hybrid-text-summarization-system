@@ -38,3 +38,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Local app data
+data/db/
+data/users.json
