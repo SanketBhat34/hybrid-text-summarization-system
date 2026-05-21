@@ -30,7 +30,9 @@ scikit-learn>=1.3.0
 
 # Transformer Models (Abstractive Summarization)
 transformers==4.57.3
-torch==2.9.1+cpu
+# Use plain torch package name so PyPI resolution succeeds on Streamlit
+# Streamlit's environment will choose the appropriate wheel (CPU/GPU).
+torch==2.9.1
 
 # Sentence-BERT (Semantic Sentence Embeddings)
 sentence-transformers>=2.2.0
